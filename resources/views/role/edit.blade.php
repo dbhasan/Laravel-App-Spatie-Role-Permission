@@ -24,24 +24,48 @@
                 @method('PUT')
 
                 <div class="col-md-12 pb-3">
-                    <label for="name" class="form-label">Role</label>
                     <div class=""><strong class="">{{ $role->name }}</strong></div>
                 </div>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="5%">SL</th>
+                            <th width="15%">Module</th>
+                            <th>Right</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-                <label class="form-label">Select Permission<span class="text-danger">*</span></label>
-                <div class="d-flex flex-wrap mt-0">
-                    @foreach ($permissions as $permission)
-                        <div class="form-check me-3 mb-2">
-                            <input class="form-check-input" id="check{{ $permission->id }}" name="permission[]" type="checkbox"
-                                 @if (in_array($permission->id, $rolePermissions)) checked @endif value="{{ $permission->name }}">
-                            <label class="form-check-label" for="check{{ $permission->id }}">{{ $permission->name }}</label>
-                        </div>
-                    @endforeach
-                </div>
-                @error('permission')
-                    <span class="text-danger">{{ $message }}</span>
-                @enderror
+                        @php $sl = 1; @endphp
 
+                        @foreach ($permissions as $moduleName => $modulePermissions)
+                            <tr>
+                                <td>{{ $sl++ }}</td>
+
+                                <td>{{ $moduleName }}</td>
+
+                                <td>
+                                    <div class="d-flex flex-wrap">
+
+                                        @foreach ($modulePermissions as $permission)
+                                            <div class="form-check me-3 mb-2">
+                                                <input class="form-check-input" type="checkbox" id="p{{ $permission->id }}"
+                                                    name="permission[]" value="{{ $permission->name }}"
+                                                    @if (in_array($permission->id, $rolePermissions)) checked @endif>
+
+                                                <label class="form-check-label" for="p{{ $permission->id }}">
+                                                    {{ $permission->name }}
+                                                </label>
+                                            </div>
+                                        @endforeach
+
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+
+                    </tbody>
+                </table>
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>

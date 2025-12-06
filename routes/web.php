@@ -21,22 +21,22 @@ use App\Http\Controllers\RoleController;
 Route::get('/', [AuthController::class, 'login'])->name('login');
 Route::post('/', [AuthController::class, 'adminlogin'])->name('admin.login');
 
-Route::group(['middleware'=>'isAdmin'],function(){
-    Route::get('/dashboard',[DashboardController::class,'dashboard'])->name('dashboard');
+Route::group(['middleware' => 'isAdmin'], function () {
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
-    Route::get('role-index',[RoleController::class, 'indexrole'])->name('role.index');
-    Route::get('role-insert',[RoleController::class,'createrole'])->name('role.create');
-    Route::post('role-insert',[RoleController::class,'storerole'])->name('role.store');
-    Route::get('role-update/{id}',[RoleController::class,'editrole'])->name('role.edit');
-    Route::put('role-update/{id}',[RoleController::class,'updaterole'])->name('role.update');
+    Route::get('role-index', [RoleController::class, 'indexrole'])->name('role.index');
+    Route::get('role-insert', [RoleController::class, 'createrole'])->name('role.create');
+    Route::post('role-insert', [RoleController::class, 'storerole'])->name('role.store');
+    Route::get('role-update/{id}', [RoleController::class, 'editrole'])->name('role.edit');
+    Route::put('role-update/{id}', [RoleController::class, 'updaterole'])->name('role.update');
 
-    Route::get('user-index',[AuthController::class, 'indexuser'])->name('user.index');
-    Route::get('user-insert',[AuthController::class,'createuser'])->name('user.create');
-    Route::post('user-insert',[AuthController::class,'storeuser'])->name('user.store');
-    Route::get('user-update/{id}',[AuthController::class,'edituser'])->name('user.edit');
-    Route::put('user-update/{id}',[AuthController::class,'updateuser'])->name('user.update');
+    Route::get('user-index', [AuthController::class, 'indexuser'])->name('user.index');
+    Route::get('user-insert', [AuthController::class, 'createuser'])->name('user.create');
+    Route::post('user-insert', [AuthController::class, 'storeuser'])->name('user.store');
+    Route::get('user-update/{id}', [AuthController::class, 'edituser'])->name('user.edit');
+    Route::put('user-update/{id}', [AuthController::class, 'updateuser'])->name('user.update');
 
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('profle-update',[AuthController::class,'profileupdate'])->name('profle.update');
-    Route::post('profle-update',[AuthController::class,'passwordupdate'])->name('password.update');
+    Route::get('profle-update', [AuthController::class, 'profileupdate'])->name('profle.update');
+    Route::post('profle-update', [AuthController::class, 'passwordupdate'])->name('password.update');
 });

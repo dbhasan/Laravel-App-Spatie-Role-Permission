@@ -11,11 +11,11 @@
                     </ol>
                 </nav>
             </div>
-            @can('user-manage')
-            <div class="text-end pt-2">
-                <a href="{{ route('user.create')}}" class="btn btn-primary"><i class="fas fa-plus-circle"></i>
-                    Add User</a>
-            </div>
+            @can('User.create')
+                <div class="text-end pt-2">
+                    <a href="{{ route('user.create') }}" class="btn btn-primary"><i class="fas fa-plus-circle"></i>
+                        Add User</a>
+                </div>
             @endcan
         </div>
         <hr>
@@ -29,37 +29,38 @@
                         <th>Email</th>
                         <th>Number</th>
                         <th>Status</th>
-                        @can('user-manage')
-                        <th class="text-end">Action</th>
+                        @can('User.edit')
+                            <th class="text-end">Action</th>
                         @endcan
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($users as $user)
                         <tr>
-                            <td>{{$loop->iteration}}</td>
-                            <td>{{ $user->name}}</td>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $user->name }}</td>
                             <td>
-                                @if(!empty($user->getRoleNames()))
-                                  @foreach($user->getRoleNames() as $name)
-                                     <label class="badge rounded-pill text-bg-primary">{{ $name }}</label>
-                                  @endforeach
+                                @if (!empty($user->getRoleNames()))
+                                    @foreach ($user->getRoleNames() as $name)
+                                        <label class="badge rounded-pill text-bg-primary">{{ $name }}</label>
+                                    @endforeach
                                 @endif
-                                <label class="badge rounded-pill text-bg-primary">{{$user->vendor }}</label>
+                                <label class="badge rounded-pill text-bg-primary">{{ $user->vendor }}</label>
                             </td>
-                            <td>{{ $user->email}}</td>
-                            <td>{{ $user->number}}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>{{ $user->number }}</td>
                             <td>
-                                @if($user->status == 1)
+                                @if ($user->status == 1)
                                     Active
                                 @elseif($user->status == 2)
                                     Inactive
                                 @endif
                             </td>
-                            @can('user-manage')
-                            <td class="d-flex justify-content-end">
-                                <a href="{{ route('user.edit', $user->id) }}" class="btn btn-primary mx-1"><i class="bi bi-pencil-square"></i></a>
-                            </td>
+                            @can('User.edit')
+                                <td class="d-flex justify-content-end">
+                                    <a href="{{ route('user.edit', $user->id) }}" class="btn btn-primary mx-1"><i
+                                            class="bi bi-pencil-square"></i></a>
+                                </td>
                             @endcan
                         </tr>
                     @endforeach

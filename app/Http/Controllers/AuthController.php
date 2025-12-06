@@ -11,18 +11,19 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
-use App\Models\RoleModel;
 use Exception;
 use Session;
 
 class AuthController extends Controller
 {
     // Display the login form
-    public function login() {
+    public function login()
+    {
         return view('auth.login');
     }
-    
-    public function adminlogin(Request $request) {
+
+    public function adminlogin(Request $request)
+    {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -33,39 +34,42 @@ class AuthController extends Controller
             'password' => $request->input('password'),
         ];
 
-        if(Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials)) {
             return redirect()->route('dashboard');
         } else {
             return redirect()->route('login')->with('error', 'Invalid credentials. Please try again.');
         }
     }
-    
+
     // Display the logout
-    public function logout() {
+    public function logout()
+    {
         \Session::flush();
         \Auth::logout();
         return redirect()->route('login');
     }
 
-    public function indexuser() {
+    public function indexuser()
+    {
         $userRole = auth()->user()->rolename;
-    
+
         if ($userRole === 'admin') {
             $users = User::whereDoesntHave('roles', function ($query) {
                 $query->where('name', 'superadmin');
             })->get();
-                $roles = Role::where('name', '!=', 'superadmin')->pluck('name', 'name')->all();
+            $roles = Role::where('name', '!=', 'superadmin')->pluck('name', 'name')->all();
         } else {
             $users = User::all();
             $roles = Role::pluck('name', 'name')->all();
         }
-    
+
         return view('auth.index', compact('users', 'roles'));
     }
 
 
-    public function createuser() {
-        $userRole = auth()->user()->rolename; 
+    public function createuser()
+    {
+        $userRole = auth()->user()->rolename;
 
         if ($userRole === 'superadmin') {
             $roles = Role::where('name', '!=', 'superadmin')->pluck('name', 'name')->all();
@@ -79,7 +83,7 @@ class AuthController extends Controller
     }
 
 
-        public function storeuser(Request $request):RedirectResponse
+    public function storeuser(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => 'required',
@@ -87,23 +91,23 @@ class AuthController extends Controller
             'number' => 'required|digits_between:11,14|unique:users,number',
             'roles' => 'required',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            
+
             'new_password' => [
                 'required',
                 'confirmed',
                 'string',
-                'min:8',             
-                'regex:/[a-z]/',     
-                'regex:/[A-Z]/',     
-                'regex:/[0-9]/',     
-                'regex:/[@$!%*?&#]/' 
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*?&#]/'
             ],
         ], [
             'new_password.min' => 'The password must be at least 8 characters long.',
             'new_password.regex' => 'Password must be uppercaser, lowercase, number, and special character.',
         ]);
-        
-        
+
+
         try {
             $user = new User();
             $user->name = $request->name;
@@ -126,9 +130,10 @@ class AuthController extends Controller
         }
     }
 
-    public function edituser($id){
+    public function edituser($id)
+    {
         $loginuser = User::find($id);
-        return view('auth.edit',compact('loginuser'));
+        return view('auth.edit', compact('loginuser'));
     }
 
 
@@ -142,75 +147,77 @@ class AuthController extends Controller
             'status' => 'required|in:1,2',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
 
-                'new_password' => [
-                    'nullable',
-                    'confirmed',
-                    'string',
-                    'min:8',             
-                    'regex:/[a-z]/',    
-                    'regex:/[A-Z]/',     
-                    'regex:/[0-9]/',     
-                    'regex:/[@$!%*?&#]/' 
-                ],
-            ], [
-                'new_password.min' => 'The password must be at least 8 characters long.',
-                'new_password.regex' => 'Password must be uppercaser, lowercase, number, and special character.',
-            ]);
-        
-            try{
-                $user->name = $request->input('name');
-                $user->email = $request->input('email');    
-                $user->number = $request->input('number');        
-                $user->status = $request->input('status'); 
-       
-                // Only hash and set the new password if it is provided
-                if ($request->filled('new_password')) {
-                    $user->password = Hash::make($request->input('new_password'));
+            'new_password' => [
+                'nullable',
+                'confirmed',
+                'string',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*?&#]/'
+            ],
+        ], [
+            'new_password.min' => 'The password must be at least 8 characters long.',
+            'new_password.regex' => 'Password must be uppercaser, lowercase, number, and special character.',
+        ]);
+
+        try {
+            $user->name = $request->input('name');
+            $user->email = $request->input('email');
+            $user->number = $request->input('number');
+            $user->status = $request->input('status');
+
+            // Only hash and set the new password if it is provided
+            if ($request->filled('new_password')) {
+                $user->password = Hash::make($request->input('new_password'));
+            }
+
+            if ($request->hasFile('image')) {
+                // Check if the old image exists and delete it
+                if ($user->image && file_exists(public_path('images/' . $user->image))) {
+                    unlink(public_path('images/' . $user->image));
                 }
 
-                if ($request->hasFile('image')) {
-                    // Check if the old image exists and delete it
-                    if ($user->image && file_exists(public_path('images/' . $user->image))) {
-                        unlink(public_path('images/' . $user->image));
-                    }
-        
-                    // Upload the new image
-                    $imageName = time() . '.' . $request->image->extension();
-                    $request->image->move(public_path('images'), $imageName);
-                    $user->image = $imageName; // Update the img field
+                // Upload the new image
+                $imageName = time() . '.' . $request->image->extension();
+                $request->image->move(public_path('images'), $imageName);
+                $user->image = $imageName; // Update the img field
+            }
+
+            $user->save();
+
+
+            // Invalidate the user's sessions if the status is changed
+            if ($request->input('status') != 1) {
+                // Clear all sessions for the user
+                DB::table('sessions')
+                    ->where('user_id', $user->id)
+                    ->delete();
+
+                // Optionally, if the user is currently logged in, log them out
+                if (Auth::id() == $user->id) {
+                    Auth::logout();
+                    Session::flush();
                 }
-        
-                $user->save();
+            }
 
-   
-                // Invalidate the user's sessions if the status is changed
-                if ($request->input('status') != 1) {
-                    // Clear all sessions for the user
-                    DB::table('sessions')
-                        ->where('user_id', $user->id)
-                        ->delete();
-
-                    // Optionally, if the user is currently logged in, log them out
-                    if (Auth::id() == $user->id) {
-                        Auth::logout();
-                        Session::flush();
-                    }
-                }
-
-                return redirect()->route('user.index')->with('success', 'Data update successfully.');
-            } catch (\Exception $e) {
-                return redirect()->route('user.index')->with('error', 'An error occurred. Please try again.');
-         }
+            return redirect()->route('user.index')->with('success', 'Data update successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('user.index')->with('error', 'An error occurred. Please try again.');
+        }
     }
 
 
     // Display the Password Update
-    public function profileupdate() {
-        $users=Auth::user();
+    public function profileupdate()
+    {
+        $users = Auth::user();
         return view('auth.password', compact('users'));
     }
 
-    public function passwordupdate(Request $request) {
+    public function passwordupdate(Request $request)
+    {
         $request->validate([
             'old_password' => 'required',
             'new_password' => 'required|confirmed',
@@ -228,6 +235,4 @@ class AuthController extends Controller
 
         return redirect()->route('profle.update')->with('success', 'Password updated successfully.');
     }
-
 }
-

@@ -8,58 +8,68 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
-use App\Models\RoleModel;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
      */
-         private $permissions = [
-        'admin-dashboard',
-        'user-permission','user-manage',
-        'role-permission', 'role-manage',
-        'order-view', 'order-delete',
-        'admin-report',
-        'finance-view', 'finance-manage',
-        'password-update',
-    ];
-
-    private $roleModeles = [
-        'superadmin',
-        'admin',
-        'authority',
+    private $roles = [
+        'Master Admin',
+        'Super Admin',
+        'Admin',
         'manager',
         'finance',
+        'users',
     ];
+
+    // private $permissions = [
+    //     'admin-dashboard',
+    //     'user-permission',
+    //     'user-manage',
+    //     'role-permission',
+    //     'role-manage',
+    //     'order-view',
+    //     'order-delete',
+    //     'admin-report',
+    //     'finance-view',
+    //     'finance-manage',
+    //     'password-update',
+    // ];
 
     public function run(): void
     {
-        foreach ($this->permissions as $permission) {
-            Permission::create(['name' => $permission]);
+        foreach ($this->roles as $role) {
+            Role::create([
+                'name' => $role,
+                'guard_name' => 'web'
+            ]);
         };
-        
-        foreach ($this->roleModeles as $roleModel) {
-            RoleModel::create(['name' => $roleModel]);
-        };
+
+        $this->call([
+            PermissionSeeder::class,
+        ]);
 
 
         // User Create
-         $user = User::create([
-            'name' => 'Super Admin',
-            'email' => 'superadmin@gmail.com',
+        $user = User::create([
+            'name' => 'Master Admin',
+            'email' => 'masteradmin@gmail.com',
             'number' => '8801723629080',
             'password' => Hash::make('12345678'),
-            'rolename' => 'superadmin',
+            'role_id' => '1',
             'status' => '1',
         ]);
 
-        $role = Role::create(['name' => 'superadmin']);
 
-        $permissions = Permission::pluck('id', 'id')->all();
+        $role = Role::find(1);
 
-        $role->syncPermissions($permissions);
+        if ($role && $role->id == 1) {
+            $permissions = Permission::pluck('id')->toArray();
+            $role->syncPermissions($permissions);
+        }
 
+        // Assign role to user
         $user->syncRoles([$role->id]);
     }
 }
