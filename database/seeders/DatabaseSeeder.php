@@ -23,20 +23,6 @@ class DatabaseSeeder extends Seeder
         'users',
     ];
 
-    // private $permissions = [
-    //     'admin-dashboard',
-    //     'user-permission',
-    //     'user-manage',
-    //     'role-permission',
-    //     'role-manage',
-    //     'order-view',
-    //     'order-delete',
-    //     'admin-report',
-    //     'finance-view',
-    //     'finance-manage',
-    //     'password-update',
-    // ];
-
     public function run(): void
     {
         foreach ($this->roles as $role) {
@@ -54,7 +40,7 @@ class DatabaseSeeder extends Seeder
         // User Create
         $user = User::create([
             'name' => 'Master Admin',
-            'email' => 'masteradmin@gmail.com',
+            'email' => 'ahasan.jobs@gmail.com',
             'number' => '8801723629080',
             'password' => Hash::make('12345678'),
             'role_id' => '1',
